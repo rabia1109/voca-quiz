@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>워드마스터 수능2000 [1-2강] · 단어 시험</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --ink:#1f2430;
+    --sub:#6b7280;
+    --brand:#3d5cff;
+    --brand-dark:#2c44d1;
+    --good:#1fae6b;
+    --good-bg:#e8faf1;
+    --bad:#e8455c;
+    --bad-bg:#fdecee;
+    --line:#e6e8f0;
+    --tab-inactive:#9aa0b4;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    min-height:100vh;
+  }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    color:var(--ink);
+    padding:20px 12px;
+  }
+  #vocab-app{
+    background:var(--bg);
+    max-width:480px;
+    margin:0 auto;
+    min-height:600px;
+    border-radius:20px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .va-header{
+    padding:18px 20px 0 20px;
+  }
+  .va-title{
+    font-size:20px;
+    font-weight:800;
+    margin:0 0 14px 0;
+  }
+  .va-tabs{
+    display:flex;
+    gap:6px;
+    background:#eceef5;
+    padding:4px;
+    border-radius:12px;
+  }
+  .va-tab{
+    flex:1;
+    text-align:center;
+    padding:10px 8px;
+    border-radius:9px;
+    font-weight:700;
+    font-size:14px;
+    color:var(--tab-inactive);
+    cursor:pointer;
+    user-select:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    transition:all .15s ease;
+  }
+  .va-tab.active{
+    background:var(--card);
+    color:var(--brand);
+    box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  }
+  .va-badge{
+    background:var(--bad);
+    color:#fff;
+    font-size:11px;
+    font-weight:800;
+    padding:1px 7px;
+    border-radius:999px;
+    min-width:18px;
+  }
+  .va-body{
+    flex:1;
+    padding:18px 20px 24px 20px;
+    overflow-y:auto;
+  }
+
+  .va-start{
+    background:var(--card);
+    border-radius:16px;
+    padding:24px 20px;
+    text-align:center;
+    margin-top:10px;
+  }
+  .va-start h2{
+    font-size:17px;
+    margin:0 0 6px 0;
+  }
+  .va-start p{
+    color:var(--sub);
+    font-size:13px;
+    margin:0 0 18px 0;
+    line-height:1.5;
+  }
+  .va-count-row{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .va-count-btn{
+    padding:8px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    font-size:13px;
+    font-weight:700;
+    color:var(--sub);
+    cursor:pointer;
+  }
+  .va-count-btn.sel{
+    border-color:var(--brand);
+    color:var(--brand);
+    background:#eef1ff;
+  }
+  .va-primary-btn{
+    background:var(--brand);
+    color:#fff;
+    border:none;
+    padding:14px 20px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:800;
+    width:100%;
+    cursor:pointer;
+  }
+  .va-primary-btn:active{background:var(--brand-dark);}
+
+  .va-progress-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12px;
+    color:var(--sub);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .va-progress-bar{
+    height:6px;
+    background:var(--line);
+    border-radius:99px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .va-progress-fill{
+    height:100%;
+    background:var(--brand);
+    border-radius:99px;
+    transition:width .25s ease;
+  }
+  .va-qcard{
+    background:var(--card);
+    border-radius:16px;
+    padding:26px 20px;
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .va-qtype{
+    font-size:11px;
+    font-weight:800;
+    color:var(--brand);
+    background:#eef1ff;
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .va-qword{
+    font-size:24px;
+    font-weight:800;
+    line-height:1.4;
+    word-break:keep-all;
+  }
+  .va-choices{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .va-choice{
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:14.5px;
+    font-weight:600;
+    text-align:left;
+    cursor:pointer;
+    line-height:1.4;
+    word-break:keep-all;
+  }
+  .va-choice:active{background:#f2f3f8;}
+  .va-choice.correct{
+    background:var(--good-bg);
+    border-color:var(--good);
+    color:var(--good);
+  }
+  .va-choice.wrong{
+    background:var(--bad-bg);
+    border-color:var(--bad);
+    color:var(--bad);
+  }
+  .va-choice.disabled{
+    pointer-events:none;
+  }
+  .va-next-wrap{
+    margin-top:16px;
+  }
+  .va-feedback{
+    text-align:center;
+    font-size:13px;
+    font-weight:700;
+    margin-top:10px;
+    min-height:18px;
+  }
+  .va-feedback.ok{color:var(--good);}
+  .va-feedback.no{color:var(--bad);}
+
+  .va-result{
+    background:var(--card);
+    border-radius:16px;
+    padding:30px 20px;
+    text-align:center;
+  }
+  .va-result h2{
+    font-size:18px;
+    margin:0 0 4px 0;
+  }
+  .va-score{
+    font-size:38px;
+    font-weight:900;
+    color:var(--brand);
+    margin:14px 0 4px 0;
+  }
+  .va-score-sub{
+    color:var(--sub);
+    font-size:13px;
+    margin-bottom:22px;
+  }
+
+  .va-wb-empty{
+    text-align:center;
+    color:var(--sub);
+    font-size:14px;
+    padding:60px 20px;
+    line-height:1.6;
+  }
+  .va-wb-item{
+    background:var(--card);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+    gap:10px;
+  }
+  .va-wb-en{
+    font-weight:800;
+    font-size:15px;
+    margin-bottom:3px;
+  }
+  .va-wb-ko{
+    font-size:12.5px;
+    color:var(--sub);
+    line-height:1.4;
+  }
+  .va-wb-btn{
+    flex-shrink:0;
+    background:#eef1ff;
+    color:var(--brand);
+    border:none;
+    padding:9px 12px;
+    border-radius:9px;
+    font-size:12.5px;
+    font-weight:800;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .va-wb-btn:active{background:#dfe4ff;}
+  .va-footer-note{
+    text-align:center;
+    font-size:11px;
+    color:#b3b7c6;
+    margin-top:16px;
+  }
+</style>
+</head>
+<body>
+
+<div id="vocab-app">
+  <div class="va-header">
+    <p class="va-title">📘 워드마스터 수능2000 [1-2강]</p>
+    <div class="va-tabs">
+      <div class="va-tab active" id="tab-quiz" onclick="VA.switchTab('quiz')">시험지</div>
+      <div class="va-tab" id="tab-wb" onclick="VA.switchTab('wb')">
+        내 단어장 <span class="va-badge" id="wb-badge" style="display:none;">0</span>
+      </div>
+    </div>
+  </div>
+  <div class="va-body" id="va-body"></div>
+</div>
+
+<script>
+(function(){
+
+  // ===== 기본 단어 목록 (사진/문서에서 추출) =====
+  const BASE_WORDS = [
+    {en:"provide",ko:"공급하다, 준비하다"},
+    {en:"develop",ko:"개발하다, 발달[발전]하다"},
+    {en:"service",ko:"서비스, 봉사, 공공 업무"},
+    {en:"inform",ko:"알리다, 통지하다"},
+    {en:"relationship",ko:"관계"},
+    {en:"improve",ko:"향상시키다, 향상하다"},
+    {en:"individual",ko:"개인, 개인의, 개인적인"},
+    {en:"require",ko:"필요로 하다, 요구하다"},
+    {en:"advise",ko:"조언하다, 충고하다"},
+    {en:"social",ko:"사회의, 사교적인"},
+    {en:"amount",ko:"총액, 총계, 양, 총계가 ~이 되다"},
+    {en:"behave",ko:"(예의 바르게) 행동하다"},
+    {en:"employ",ko:"고용하다, (기술·방법 등을) 쓰다"},
+    {en:"attitude",ko:"태도, 입장"},
+    {en:"research",ko:"연구, 연구하다, 조사하다"},
+    {en:"audience",ko:"청중, 관객"},
+    {en:"volunteer",ko:"자원봉사, 지원자, 자원하다"},
+    {en:"influence",ko:"영향, 영향을 미치는 것[사람], 영향을 끼치다"},
+    {en:"terrible",ko:"끔찍한, 무서운"},
+    {en:"opportunity",ko:"기회"},
+    {en:"ability",ko:"능력"},
+    {en:"expense",ko:"비용, 지출"},
+    {en:"local",ko:"지방의, 지역의, 장소의"},
+    {en:"involve",ko:"포함하다, 관련되다, (사건 등에) 말려들게 하다"},
+    {en:"stress",ko:"스트레스, 강조, 강조하다, 압력을 주다"},
+    {en:"therefore",ko:"그러므로, 그 결과"},
+    {en:"positive",ko:"긍정적인, 확신하는"},
+    {en:"average",ko:"평균, 평균의, 평균 ~이다"},
+    {en:"ride",ko:"(탈것을) 타다, 타기, 타고가기"},
+    {en:"encourage",ko:"촉구하다, 격려하다"},
+    {en:"determine",ko:"결정하다, 결심하다"},
+    {en:"international",ko:"국제의, 국제적인"},
+    {en:"consume",ko:"소비하다, 먹다[마시다]"},
+    {en:"impress",ko:"깊은 인상을 주다, 감동시키다"},
+    {en:"object",ko:"물체, 목표, 반대하다"},
+    {en:"available",ko:"이용 가능한, 쓸모 있는"},
+    {en:"contain",ko:"함유하다, 포함하다, 억제하다"},
+    {en:"recognize",ko:"인지하다, 인정하다"},
+    {en:"material",ko:"재료, 물질, 물질의"},
+    {en:"comfort",ko:"편안하게 하다, 위로하다, 편안, 위로"},
+    {en:"emotion",ko:"감정"},
+    {en:"amaze",ko:"놀라게 하다"},
+    {en:"reduce",ko:"줄이다, 낮추다"},
+    {en:"discover",ko:"발견하다"},
+    {en:"decide",ko:"결심하다, 결정하다"},
+    {en:"benefit",ko:"이익, 이익이 되다"},
+    {en:"affect",ko:"영향을 미치다, ~인 체하다"},
+    {en:"level",ko:"수준, 수평, 수평의, 평평하게 하다"},
+    {en:"chemistry",ko:"화학, 교감(交感)"},
+    {en:"immediate",ko:"직접의, 즉각적인"},
+    {en:"thus",ko:"그러므로, 따라서"},
+    {en:"proper",ko:"적절한, 알맞은"},
+    {en:"performance",ko:"공연, 성적, 성과"},
+    {en:"essence",ko:"(사물의) 본질, 정수(精髓)"},
+    {en:"economic",ko:"경제의, 경제학의"},
+    {en:"cell",ko:"세포, 작은 방, 독방"},
+    {en:"focus",ko:"초점, 집중하다"},
+    {en:"issue",ko:"논란거리, 발행, 발행물, 발행하다"},
+    {en:"participate",ko:"참여하다, 참가하다 (in)"},
+    {en:"demand",ko:"요구하다, 수요"},
+    {en:"occur",ko:"(사건이) 일어나다, 발생하다"},
+    {en:"complex",ko:"복잡한, 복합체"},
+    {en:"define",ko:"정의하다, 한계 짓다, 한정하다"},
+    {en:"proud",ko:"자랑스러워하는, 자만하는"},
+    {en:"aware",ko:"인지하는, 알고 있는"},
+    {en:"contact",ko:"접촉, 접촉하다"},
+    {en:"profession",ko:"직업, 직종"},
+    {en:"detail",ko:"세부, 상술하다"},
+    {en:"approach",ko:"접근하다, 접근"},
+    {en:"career",ko:"직업, 경력"},
+    {en:"package",ko:"꾸러미, 포장, 포장하다"},
+    {en:"disappear",ko:"사라지다"},
+    {en:"novel",ko:"(장편) 소설, 참신한"},
+    {en:"secure",ko:"안전한, 안전하게 하다, 확보하다"},
+    {en:"fashion",ko:"유행, 패션, 방식, 만들어 내다"},
+    {en:"despite",ko:"~에도 불구하고"},
+    {en:"background",ko:"배경, 배경 지식, 이유"},
+    {en:"solution",ko:"해결, 해결책, 용액"},
+    {en:"generate",ko:"일으키다, 발생시키다"},
+    {en:"eventually",ko:"결국"}
+  ];
+
+  // localStorage 키 (사용자 브라우저별로 독립 저장됨)
+  const KEY_WORDS = "vocabapp:all-words";
+  const KEY_WRONG = "vocabapp:wrong-words";
+
+  const VA = {
+    allWords: [],
+    wrongWords: [],
+    tab: "quiz",
+    quizSize: 20,
+    session: null,
+  };
+  window.VA = VA;
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function lsGet(key){
+    try{
+      const v = localStorage.getItem(key);
+      return v;
+    }catch(e){
+      console.error("localStorage get failed", key, e);
+      return null;
+    }
+  }
+  function lsSet(key, value){
+    try{
+      localStorage.setItem(key, value);
+    }catch(e){
+      console.error("localStorage set failed", key, e);
+    }
+  }
+
+  function init(){
+    let storedWords = lsGet(KEY_WORDS);
+    let mergedWords;
+    if(storedWords){
+      try{ mergedWords = JSON.parse(storedWords); }catch(e){ mergedWords = []; }
+    } else {
+      mergedWords = [];
+    }
+    const seen = new Set(mergedWords.map(w=>w.en));
+    let changed = false;
+    BASE_WORDS.forEach(w=>{
+      if(!seen.has(w.en)){
+        mergedWords.push(w);
+        seen.add(w.en);
+        changed = true;
+      }
+    });
+    VA.allWords = mergedWords;
+    if(changed || !storedWords){
+      lsSet(KEY_WORDS, JSON.stringify(mergedWords));
+    }
+
+    let storedWrong = lsGet(KEY_WRONG);
+    if(storedWrong){
+      try{ VA.wrongWords = JSON.parse(storedWrong); }catch(e){ VA.wrongWords = []; }
+    } else {
+      VA.wrongWords = [];
+    }
+
+    render();
+  }
+
+  function saveWrong(){
+    lsSet(KEY_WRONG, JSON.stringify(VA.wrongWords));
+  }
+
+  VA.switchTab = function(tab){
+    VA.tab = tab;
+    render();
+  };
+
+  VA.setQuizSize = function(n){
+    VA.quizSize = n;
+    render();
+  };
+
+  VA.startQuiz = function(){
+    const pool = shuffle(VA.allWords);
+    const size = Math.min(VA.quizSize, pool.length);
+    const picked = pool.slice(0, size);
+
+    const questions = picked.map((w, i) => {
+      const isEngToKo = i % 2 === 0;
+      const distractorsPool = VA.allWords.filter(x => x.en !== w.en);
+      const distractors = shuffle(distractorsPool).slice(0, 3);
+      const optionSource = [w, ...distractors];
+      const options = shuffle(optionSource).map(o => isEngToKo ? o.ko : o.en);
+      const correctAnswer = isEngToKo ? w.ko : w.en;
+      return {
+        word: w,
+        type: isEngToKo ? "eng2ko" : "ko2eng",
+        prompt: isEngToKo ? w.en : w.ko,
+        options: options,
+        correctAnswer: correctAnswer
+      };
+    });
+
+    VA.session = {
+      questions: shuffle(questions),
+      idx: 0,
+      correctCount: 0,
+      answered: false,
+      selected: null
+    };
+    render();
+  };
+
+  VA.selectAnswer = function(optionText){
+    const s = VA.session;
+    if(!s || s.answered) return;
+    s.answered = true;
+    s.selected = optionText;
+    const q = s.questions[s.idx];
+    const isCorrect = optionText === q.correctAnswer;
+
+    if(isCorrect){
+      s.correctCount++;
+      const before = VA.wrongWords.length;
+      VA.wrongWords = VA.wrongWords.filter(w => w.en !== q.word.en);
+      if(VA.wrongWords.length !== before) saveWrong();
+    } else {
+      if(!VA.wrongWords.some(w => w.en === q.word.en)){
+        VA.wrongWords.push({en:q.word.en, ko:q.word.ko});
+        saveWrong();
+      }
+    }
+    render();
+  };
+
+  VA.nextQuestion = function(){
+    const s = VA.session;
+    if(!s) return;
+    if(s.idx < s.questions.length - 1){
+      s.idx++;
+      s.answered = false;
+      s.selected = null;
+      render();
+    } else {
+      s.idx = s.questions.length;
+      render();
+    }
+  };
+
+  VA.restartQuiz = function(){
+    VA.session = null;
+    render();
+  };
+
+  VA.markLearned = function(en){
+    VA.wrongWords = VA.wrongWords.filter(w => w.en !== en);
+    saveWrong();
+    render();
+  };
+
+  function renderTabs(){
+    document.getElementById('tab-quiz').className = 'va-tab' + (VA.tab==='quiz' ? ' active' : '');
+    document.getElementById('tab-wb').className = 'va-tab' + (VA.tab==='wb' ? ' active' : '');
+    const badge = document.getElementById('wb-badge');
+    if(VA.wrongWords.length > 0){
+      badge.style.display = 'inline-block';
+      badge.textContent = VA.wrongWords.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function renderQuizTab(){
+    const body = document.getElementById('va-body');
+
+    if(!VA.session){
+      const sizeOptions = [10,20,40,VA.allWords.length].filter((v,i,a)=>a.indexOf(v)===i && v<=VA.allWords.length);
+      body.innerHTML = `
+        <div class="va-start">
+          <h2>🎯 단어 뜻 맞히기</h2>
+          <p>영어 → 한국어, 한국어 → 영어를 섞어서<br>4지선다로 출제해요. 총 ${VA.allWords.length}개 단어 중에서<br>몇 문제를 풀지 골라보세요.</p>
+          <div class="va-count-row">
+            ${sizeOptions.map(n => `
+              <div class="va-count-btn ${VA.quizSize===n?'sel':''}" onclick="VA.setQuizSize(${n})">${n===VA.allWords.length? '전체 '+n : n+'문제'}</div>
+            `).join('')}
+          </div>
+          <button class="va-primary-btn" onclick="VA.startQuiz()">🔀 새 시험지 (랜덤)</button>
+        </div>
+        <div class="va-footer-note">이 기기(브라우저)에 자동 저장돼요</div>
+      `;
+      return;
+    }
+
+    const s = VA.session;
+
+    if(s.idx >= s.questions.length){
+      const total = s.questions.length;
+      const pct = Math.round((s.correctCount/total)*100);
+      body.innerHTML = `
+        <div class="va-result">
+          <div style="font-size:38px;">${pct>=80?'🎉':pct>=50?'💪':'📚'}</div>
+          <h2>시험 완료!</h2>
+          <div class="va-score">${s.correctCount} / ${total}</div>
+          <div class="va-score-sub">정답률 ${pct}% · 틀린 단어는 자동으로<br>'내 단어장'에 저장됐어요.</div>
+          <button class="va-primary-btn" onclick="VA.restartQuiz()">🔀 새 시험지 (랜덤)</button>
+        </div>
+      `;
+      return;
+    }
+
+    const q = s.questions[s.idx];
+    const pct = Math.round((s.idx/s.questions.length)*100);
+
+    let choicesHtml = '';
+    q.options.forEach(opt => {
+      let cls = 'va-choice';
+      if(s.answered){
+        cls += ' disabled';
+        if(opt === q.correctAnswer) cls += ' correct';
+        else if(opt === s.selected) cls += ' wrong';
+      }
+      choicesHtml += `<div class="${cls}" onclick="VA.selectAnswer(${JSON.stringify(opt).replace(/"/g,'&quot;')})">${esc(opt)}</div>`;
+    });
+
+    let feedbackHtml = '';
+    if(s.answered){
+      const correct = s.selected === q.correctAnswer;
+      feedbackHtml = `<div class="va-feedback ${correct?'ok':'no'}">${correct? '✅ 정답이에요!' : '❌ 오답! 정답: ' + esc(q.correctAnswer)}</div>`;
+    }
+
+    body.innerHTML = `
+      <div class="va-progress-row">
+        <span>문항 ${s.idx+1} / ${s.questions.length}</span>
+        <span>맞힌 개수 ${s.correctCount}</span>
+      </div>
+      <div class="va-progress-bar"><div class="va-progress-fill" style="width:${pct}%"></div></div>
+      <div class="va-qcard">
+        <div class="va-qtype">${q.type==='eng2ko' ? '영어 → 한글 뜻' : '한글 뜻 → 영어'}</div>
+        <div class="va-qword">${esc(q.prompt)}</div>
+      </div>
+      <div class="va-choices">${choicesHtml}</div>
+      ${feedbackHtml}
+      ${s.answered ? `<div class="va-next-wrap"><button class="va-primary-btn" onclick="VA.nextQuestion()">${s.idx < s.questions.length-1 ? '다음 문제 →' : '결과 보기'}</button></div>` : ''}
+    `;
+  }
+
+  function renderWbTab(){
+    const body = document.getElementById('va-body');
+    if(VA.wrongWords.length === 0){
+      body.innerHTML = `<div class="va-wb-empty">📭 아직 저장된 단어가 없어요.<br>시험지를 풀다가 틀리면<br>여기에 자동으로 모여요.</div>`;
+      return;
+    }
+    let html = `<div style="font-size:12.5px;color:var(--sub);font-weight:700;margin-bottom:12px;">총 ${VA.wrongWords.length}개 단어</div>`;
+    VA.wrongWords.forEach(w => {
+      html += `
+        <div class="va-wb-item">
+          <div>
+            <div class="va-wb-en">${esc(w.en)}</div>
+            <div class="va-wb-ko">${esc(w.ko)}</div>
+          </div>
+          <button class="va-wb-btn" onclick="VA.markLearned(${JSON.stringify(w.en).replace(/"/g,'&quot;')})">✓ 외웠어</button>
+        </div>
+      `;
+    });
+    body.innerHTML = html;
+  }
+
+  function render(){
+    renderTabs();
+    if(VA.tab === 'quiz') renderQuizTab();
+    else renderWbTab();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
